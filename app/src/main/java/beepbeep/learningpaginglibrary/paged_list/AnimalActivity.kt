@@ -27,8 +27,8 @@ class AnimalActivity : AppCompatActivity() {
                 .build()
         PagedList.Builder(AnimalDataSource(), config)
                 .setInitialKey(0)
-                .setFetchExecutor(Executors.newScheduledThreadPool(10))
-                .setNotifyExecutor(Executors.newScheduledThreadPool(10))
+                .setFetchExecutor(Executors.newSingleThreadExecutor())
+                .setNotifyExecutor(Executors.newSingleThreadExecutor())
                 .build()
     }.subscribeOn(Schedulers.io())
 
