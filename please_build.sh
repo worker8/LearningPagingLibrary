@@ -1,0 +1,1 @@
+./gradlew assembleDebug && /Users/tanjunrong/android-sdk-macosx/platform-tools/adb install -r ./app/build/outputs/apk/debug/app-debug.apk && printf \\a && printf \\a #&& say "yatta" || say -v 'cellos' "lala lala lala"
