@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
+import beepbeep.pixelsforreddit.Animal
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_animal.*
@@ -36,29 +38,35 @@ class AnimalActivity : AppCompatActivity() {
                 .setNotifyExecutor(Executors.newScheduledThreadPool(10))
                 .build()
 
+        val pagedListObservable = Observable.fromCallable { pagedList }
+
         button.setOnClickListener {
             buttonSubject.onNext(Unit)
         }
 
-        buttonSubject
-                .doOnNext { pagedList.loadAround(pagedList.size - 1) }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    val output = pagedList.snapshot().fold("") { output, element -> "${output}, ${element.name}" }.drop(1)
-                    textView.text = output
-                }
-                .also { disposables.add(it) }
+//        buttonSubject
+//                .doOnNext { pagedList.loadAround(pagedList.size - 1) }
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe {
+//                    val output = pagedList.snapshot().fold("") { output, element -> "${output}, ${element.name}" }.drop(1)
+//                    textView.text = output
+//                }
+//                .also { disposables.add(it) }
 
-        Observable.fromCallable { pagedList }
-                .doOnNext {
-                    val output = pagedList.snapshot().fold("") { output, element -> "${output}, ${element.name}" }.drop(1)
-                    textView.text = output
+        Observable.combineLatest<PagedList<Animal>, Unit, String>(pagedListObservable, buttonSubject,
+                BiFunction { pagedList, _ ->
+                    pagedList.loadAround(pagedList.size - 1)
+                    pagedList.snapshot().fold("") { output, element -> "${output}, ${element.name}" }.drop(1)
+                })
+                .map {
+                    pagedList.snapshot().fold("") { output, element -> "${output}, ${element.name}" }.drop(1)
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
+                            textView.text = it
                         },
                         {
                             it.printStackTrace()
