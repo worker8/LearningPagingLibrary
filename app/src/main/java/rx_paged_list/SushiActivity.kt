@@ -22,7 +22,6 @@ class SushiActivity : AppCompatActivity() {
         RxView.clicks(sushiButton).map { Unit }.subscribeOn(AndroidSchedulers.mainThread())
     }
 
-
     private val pagedListObservable by lazy {
         val config: PagedList.Config = PagedList.Config.Builder()
                 .setInitialLoadSizeHint(2)

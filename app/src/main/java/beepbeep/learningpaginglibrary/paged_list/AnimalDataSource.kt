@@ -1,7 +1,6 @@
 package beepbeep.learningpaginglibrary
 
 import android.arch.paging.PageKeyedDataSource
-import android.util.Log
 import beepbeep.pixelsforreddit.Animal
 
 class AnimalDataSource : PageKeyedDataSource<Int, Animal>() {
@@ -32,17 +31,16 @@ class AnimalDataSource : PageKeyedDataSource<Int, Animal>() {
             Animal("dog-23"))
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Animal>) {
-        callback.onResult(animalList.subList(0, params.requestedLoadSize),
-                firstPage - 1, firstPage + 1)
+        val initialData = animalList.subList(0, params.requestedLoadSize)
+        val pageBefore = firstPage - 1
+        val pageAfter = firstPage + 1
+        callback.onResult(initialData, pageBefore, pageAfter)
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Animal>) {
-        Log.d("ddw", "params.key: ${params.key}")
         val start = params.key * params.requestedLoadSize
-        Log.d("ddw", "start: ${start}")
-        val tempList = animalList.subList(start, start + params.requestedLoadSize)
-        Log.d("ddw", "tempList: ${tempList}")
-        callback.onResult(tempList, params.key + 1)
+        val afterData = animalList.subList(start, start + params.requestedLoadSize)
+        callback.onResult(afterData, params.key + 1)
     }
 
     override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, Animal>) {
